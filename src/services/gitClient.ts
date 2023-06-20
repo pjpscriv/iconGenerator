@@ -24,13 +24,13 @@
  *
  */
 
-import { WikiAllowedOutputs } from '../argsParsers/wikiArgsParser';
-import { ISpinner, Logger } from './logger';
-import rimraf from 'rimraf';
-import * as fs from 'fs';
-import { Clone, Cred, PushOptions, Reference, Remote, Repository, Signature } from 'nodegit';
+// import { WikiAllowedOutputs } from '../argsParsers/wikiArgsParser';
+import { /*ISpinner, */ Logger } from './logger';
+// import rimraf from 'rimraf';
+// import * as fs from 'fs';
+// import { Clone, Cred, PushOptions, Reference, Remote, Repository, Signature } from 'nodegit';
 import { findDirectorySync, pathUnixJoin, ROOT, DOCS_ROOT } from '../utils';
-import { clearInterval } from 'timers';
+// import { clearInterval } from 'timers';
 import { CommandArgs } from '../types/associations';
 
 export class GitClient<T extends CommandArgs> {
@@ -49,46 +49,47 @@ export class GitClient<T extends CommandArgs> {
   /**
    * A groupId to group logs into
    */
-  private logGroupId: string = 'git';
+  // private logGroupId: string = 'git';
   /**
    * Path to the code repository
    */
-  private readonly codeRepoFolder: string;
+  // private readonly codeRepoFolder: string;
   /**
    * Url to the code repo
    */
-  private readonly codeRepoUrl: string;
+  // private readonly codeRepoUrl: string;
   /**
    * Url to the wiki
    */
-  private readonly wikiRepoUrl: string;
+  // private readonly wikiRepoUrl: string;
   /**
    * Url to the docs
    */
-  private readonly docsRepoUrl: string;
+  // private readonly docsRepoUrl: string;
 
   /**
    * Code Repository
    */
-  private codeRepo: Repository;
+  // private codeRepo: Repository;
   /**
    * Wiki Repository
    */
-  private wikiRepo: Repository;
+  // private wikiRepo: Repository;
   /**
    * Docs Repository
    */
-  private docsRepo: Repository;
+  // private docsRepo: Repository;
 
   constructor(private pargs: T, private logger: Logger) {
     this.rootFolder = pathUnixJoin(findDirectorySync(ROOT), './');
-    this.codeRepoFolder = pathUnixJoin(this.rootFolder, 'tmp', this.pargs.account, ROOT);
+    // this.codeRepoFolder = pathUnixJoin(this.rootFolder, 'tmp', this.pargs.account, ROOT);
     this.wikiRepoFolder = pathUnixJoin(this.rootFolder, 'tmp', this.pargs.account, `${ROOT}.wiki`);
     this.docsRepoFolder = pathUnixJoin(this.rootFolder, 'tmp', this.pargs.account, DOCS_ROOT, 'master/docs/reference/');
 
-    this.codeRepoUrl = `https://github.com/${this.pargs.account}/${ROOT}`;
-    this.docsRepoUrl = `https://github.com/${this.pargs.account}/${DOCS_ROOT}`;
-    this.wikiRepoUrl = `${this.codeRepoUrl}.wiki`;
+    console.log(this.logger)
+    // this.codeRepoUrl = `https://github.com/${this.pargs.account}/${ROOT}`;
+    // this.docsRepoUrl = `https://github.com/${this.pargs.account}/${DOCS_ROOT}`;
+    // this.wikiRepoUrl = `${this.codeRepoUrl}.wiki`;
   }
 
   /**
@@ -96,61 +97,63 @@ export class GitClient<T extends CommandArgs> {
    * @param repo
    * @param url
    */
-  private static addRemote(repo: Repository, url: string) {
-    return Remote.create(repo, 'origin', url);
-  }
+  // private static addRemote(repo: Repository, url: string) {
+  //   return Remote.create(repo, 'origin', url);
+  // }
 
   /**
    * Checks if there are changes in the provided filename
    * @param repo the repo to check
    * @param filename the filename to check
    */
-  private static async checkForDiff(repo: Repository, filename: string): Promise<boolean> {
-    const commit = await repo.getMasterCommit();
+  // private static async checkForDiff(repo: Repository, filename: string): Promise<boolean> {
+  //   const commit = await repo.getMasterCommit();
 
-    for (const diff of await commit.getDiff()) {
-      for (const patch of await diff.patches()) {
-        const exists = new RegExp(`.*/${filename}$`, 'gi').test(patch.newFile().path());
-        if (exists) {
-          return true;
-        }
-      }
-    }
+  //   for (const diff of await commit.getDiff()) {
+  //     for (const patch of await diff.patches()) {
+  //       const exists = new RegExp(`.*/${filename}$`, 'gi').test(patch.newFile().path());
+  //       if (exists) {
+  //         return true;
+  //       }
+  //     }
+  //   }
 
-    return false;
-  }
+  //   return false;
+  // }
 
   /**
    * Get the code repository
    */
   async getCodeRepository() {
-    if (this.pargs.output !== WikiAllowedOutputs.REPO) {
-      return;
-    }
+    return
 
-    this.codeRepo = await this.getRepository(this.codeRepoUrl, this.codeRepoFolder);
+    // if (this.pargs.output !== WikiAllowedOutputs.REPO) {
+    //   return;
+    // }
+
+    // this.codeRepo = await this.getRepository(this.codeRepoUrl, this.codeRepoFolder);
   }
 
   /**
    * Get the wiki repository
    */
   async getWikiRepository() {
-    if (this.pargs.output !== WikiAllowedOutputs.REPO) {
-      return;
-    }
+    // if (this.pargs.output !== WikiAllowedOutputs.REPO) {
+    //   return;
+    // }
 
-    this.wikiRepo = await this.getRepository(this.wikiRepoUrl, this.wikiRepoFolder);
+    // this.wikiRepo = await this.getRepository(this.wikiRepoUrl, this.wikiRepoFolder);
   }
 
   /**
    * Get the docs repository
    */
   async getDocsRepository() {
-    if (this.pargs.output !== WikiAllowedOutputs.REPO) {
-      return;
-    }
+    // if (this.pargs.output !== WikiAllowedOutputs.REPO) {
+    //   return;
+    // }
 
-    this.docsRepo = await this.getRepository(this.docsRepoUrl, this.docsRepoFolder);
+    // this.docsRepo = await this.getRepository(this.docsRepoUrl, this.docsRepoFolder);
   }
 
   /**
@@ -159,14 +162,16 @@ export class GitClient<T extends CommandArgs> {
    * @param content
    */
   async tryCommitToWikiRepo(filename: string, content: any): Promise<boolean> {
-    if (this.pargs.output !== WikiAllowedOutputs.REPO || !content) {
-      return;
-    }
-    if (!this.wikiRepo) {
-      await this.getWikiRepository();
-    }
+    // if (this.pargs.output !== WikiAllowedOutputs.REPO || !content) {
+    //   return;
+    // }
+    // if (!this.wikiRepo) {
+    //   await this.getWikiRepository();
+    // }
+    console.log(filename, content)
 
-    return this.commit(this.wikiRepo, filename);
+    // return this.commit(this.wikiRepo, filename);
+    return
   }
 
   /**
@@ -175,14 +180,17 @@ export class GitClient<T extends CommandArgs> {
    * @param content
    */
   async tryCommitToDocsRepo(filename: string, content: any): Promise<boolean> {
-    if (this.pargs.output !== WikiAllowedOutputs.REPO || !content) {
-      return;
-    }
-    if (!this.docsRepo) {
-      await this.getDocsRepository();
-    }
+    // if (this.pargs.output !== WikiAllowedOutputs.REPO || !content) {
+    //   return;
+    // }
+    // if (!this.docsRepo) {
+    //   await this.getDocsRepository();
+    // }
 
-    return this.commit(this.docsRepo, filename);
+    // return this.commit(this.docsRepo, filename);
+    console.log(filename, content)
+
+    return
   }
 
   /**
@@ -190,19 +198,20 @@ export class GitClient<T extends CommandArgs> {
    * @param numOfCommits
    */
   async tryPushToWikiRepo(numOfCommits: number) {
-    if (this.pargs.output !== WikiAllowedOutputs.REPO) {
-      return;
-    }
-    if (!this.wikiRepo) {
-      await this.getWikiRepository();
-    }
+    // if (this.pargs.output !== WikiAllowedOutputs.REPO) {
+    //   return;
+    // }
+    // if (!this.wikiRepo) {
+    //   await this.getWikiRepository();
+    // }
 
-    // Fetch or add remote
-    let remote = await this.wikiRepo.getRemote('origin');
-    if (!remote) {
-      remote = GitClient.addRemote(this.wikiRepo, this.wikiRepoUrl);
-    }
-    await this.push(remote, numOfCommits);
+    // // Fetch or add remote
+    // let remote = await this.wikiRepo.getRemote('origin');
+    // if (!remote) {
+    //   remote = GitClient.addRemote(this.wikiRepo, this.wikiRepoUrl);
+    // }
+    // await this.push(remote, numOfCommits);
+    console.log(numOfCommits)
   }
 
   /**
@@ -210,19 +219,20 @@ export class GitClient<T extends CommandArgs> {
    * @param numOfCommits
    */
   async tryPushToDocsRepo(numOfCommits: number) {
-    if (this.pargs.output !== WikiAllowedOutputs.REPO) {
-      return;
-    }
-    if (!this.docsRepo) {
-      await this.getDocsRepository();
-    }
+    // if (this.pargs.output !== WikiAllowedOutputs.REPO) {
+    //   return;
+    // }
+    // if (!this.docsRepo) {
+    //   await this.getDocsRepository();
+    // }
 
-    // Fetch or add remote
-    let remote = await this.docsRepo.getRemote('origin');
-    if (!remote) {
-      remote = GitClient.addRemote(this.docsRepo, this.docsRepoUrl);
-    }
-    await this.push(remote, numOfCommits);
+    // // Fetch or add remote
+    // let remote = await this.docsRepo.getRemote('origin');
+    // if (!remote) {
+    //   remote = GitClient.addRemote(this.docsRepo, this.docsRepoUrl);
+    // }
+    console.log(numOfCommits)
+    // await this.push(remote, numOfCommits);
   }
 
   /**
@@ -230,14 +240,16 @@ export class GitClient<T extends CommandArgs> {
    * @param filename
    */
   public async checkFileChanged(filename: string): Promise<boolean> {
-    if (this.pargs.output !== WikiAllowedOutputs.REPO) {
-      return;
-    }
-    if (!this.codeRepo) {
-      await this.getCodeRepository();
-    }
+    // if (this.pargs.output !== WikiAllowedOutputs.REPO) {
+    //   return;
+    // }
+    // if (!this.codeRepo) {
+    //   await this.getCodeRepository();
+    // }
 
-    return GitClient.checkForDiff(this.codeRepo, filename);
+    // return GitClient.checkForDiff(this.codeRepo, filename);
+    console.log(filename)
+    return
   }
 
   /**
@@ -245,115 +257,118 @@ export class GitClient<T extends CommandArgs> {
    * @param url
    * @param folder
    */
-  private async getRepository(url: string, folder: string): Promise<Repository> {
-    if (!url) {
-      throw Error('url is not defined');
-    }
-    if (!fs.existsSync(folder)) {
-      return this.cloneRepo(url, folder);
-    }
-    else {
-      await rimraf.sync(folder);
-      return this.cloneRepo(url, folder);
-    }
-  }
+  // private async getRepository(url: string, folder: string): Promise<any> {
+  //   // if (!url) {
+  //   //   throw Error('url is not defined');
+  //   // }
+  //   // if (!fs.existsSync(folder)) {
+  //   //   return this.cloneRepo(url, folder);
+  //   // }
+  //   // else {
+  //   //   await rimraf.sync(folder);
+  //   //   return this.cloneRepo(url, folder);
+  //   // }
+  //   console.log(url, folder)
+  //   return
+  // }
 
   /**
    * Clone a repository into a folder
    * @param url url repository
    * @param folder foler
    */
-  private async cloneRepo(url: string, folder: string): Promise<Repository> {
-    const message = `Cloning repo: '${url}' into '${folder.replace(`${this.rootFolder}`, '')}'`;
-    const spinner: ISpinner = this.logger.spinnerLogStart(message, this.logGroupId);
-    try {
-      const clone = await Clone.clone(url, folder);
-      this.logger.spinnerLogStop(spinner, message.replace('Cloning', 'Cloned'), this.logGroupId);
+  // private async cloneRepo(url: string, folder: string): Promise<any> {
+  //   // const message = `Cloning repo: '${url}' into '${folder.replace(`${this.rootFolder}`, '')}'`;
+  //   // const spinner: ISpinner = this.logger.spinnerLogStart(message, this.logGroupId);
+  //   // try {
+  //   //   const clone = await Clone.clone(url, folder);
+  //   //   this.logger.spinnerLogStop(spinner, message.replace('Cloning', 'Cloned'), this.logGroupId);
 
-      return clone;
-    }
-    catch (e) {
-      clearInterval(spinner.timer);
-      throw e;
-    }
+  //   //   return clone;
+  //   // }
+  //   // catch (e) {
+  //   //   clearInterval(spinner.timer);
+  //   //   throw e;
+  //   // }
+  //   console.log(url, folder)
 
-  }
+  // }
 
   /**
    * Commit a filename to the repository
    * @param repo
    * @param filename
    */
-  private async commit(repo: Repository, filename: string): Promise<boolean> {
-    const spinner: ISpinner = this.logger.spinnerLogStart(`Creating commit`, this.logGroupId);
+  // private async commit(repo: Repository, filename: string): Promise<boolean> {
+  //   const spinner: ISpinner = this.logger.spinnerLogStart(`Creating commit`, this.logGroupId);
 
-    try {
-      // Refresh all indexes
-      const index = await repo.refreshIndex();
+  //   try {
+  //     // Refresh all indexes
+  //     const index = await repo.refreshIndex();
 
-      // git add
-      await index.addByPath(filename);
-      if (!index.write()) {
-        throw new Error('Failed writing repo index');
-      }
+  //     // git add
+  //     await index.addByPath(filename);
+  //     if (!index.write()) {
+  //       throw new Error('Failed writing repo index');
+  //     }
 
-      const matches = filename.match(/associations|folder_associations/i);
-      const name = matches && matches[0];
-      if (!name) {
-        throw new Error('Can not determine list name');
-      }
+  //     const matches = filename.match(/associations|folder_associations/i);
+  //     const name = matches && matches[0];
+  //     if (!name) {
+  //       throw new Error('Can not determine list name');
+  //     }
 
-      const commitMessage = `:robot: Update list of ${name.toLowerCase()}`;
-      const time = +(Date.now() / 1000).toFixed(0); // unix UTC
-      const author = Signature.create('hayate', 'hayate@github.com', time, 0); // our own bot!!
-      const committer = author;
-      // Get the commit message
-      const oid = await index.writeTree();
-      // Get the head ID
-      const headId = await Reference.nameToId(repo, 'HEAD');
+  //     const commitMessage = `:robot: Update list of ${name.toLowerCase()}`;
+  //     const time = +(Date.now() / 1000).toFixed(0); // unix UTC
+  //     const author = Signature.create('hayate', 'hayate@github.com', time, 0); // our own bot!!
+  //     const committer = author;
+  //     // Get the commit message
+  //     const oid = await index.writeTree();
+  //     // Get the head ID
+  //     const headId = await Reference.nameToId(repo, 'HEAD');
 
-      // Try to create commit
-      await repo.createCommit('HEAD', author, committer, commitMessage, oid, [headId]);
+  //     // Try to create commit
+  //     await repo.createCommit('HEAD', author, committer, commitMessage, oid, [headId]);
 
-      this.logger.spinnerLogStop(spinner, `Commit created: ${headId.tostrS()}`, this.logGroupId);
-      return true;
-    }
-    catch (e) {
-      clearInterval(spinner.timer);
-      throw e;
-    }
-  }
+  //     this.logger.spinnerLogStop(spinner, `Commit created: ${headId.tostrS()}`, this.logGroupId);
+  //     return true;
+  //   }
+  //   catch (e) {
+  //     clearInterval(spinner.timer);
+  //     throw e;
+  //   }
+  // }
 
   /**
    * Push the master branch
    * @param remote
    * @param numOfCommits
    */
-  private async push(remote: Remote, numOfCommits: number, branch: string = 'master') {
-    const options: PushOptions = {
-      callbacks: {
-        credentials: () => Cred.userpassPlaintextNew(this.pargs.account, this.pargs.token),
-      },
-    };
-    const s = numOfCommits > 1 ? 's' : '';
-    const spinner: ISpinner = this.logger.spinnerLogStart(`Pushing commit${s} to: ${remote.url()}`, this.logGroupId);
-    // Interrupt the push after one minute
-    const timer = setTimeout(() => {
-      clearInterval(spinner.timer);
-      throw new Error('Timeout on push action');
-    }, 60000);
+  // private async push(remote: Remote, numOfCommits: number, branch: string = 'master') {
+  //   const options: PushOptions = {
+  //     callbacks: {
+  //       credentials: () => Cred.userpassPlaintextNew(this.pargs.account, this.pargs.token),
+  //     },
+  //   };
+  //   const s = numOfCommits > 1 ? 's' : '';
+  //   const spinner: ISpinner = this.logger.spinnerLogStart(`Pushing commit${s} to: ${remote.url()}`, this.logGroupId);
+  //   // Interrupt the push after one minute
+  //   const timer = setTimeout(() => {
+  //     clearInterval(spinner.timer);
+  //     throw new Error('Timeout on push action');
+  //   }, 60000);
 
-    try {
-      // Push master
-      const result = await remote.push([`refs/heads/${branch}:refs/heads/${branch}`], options);
-      this.logger.spinnerLogStop(spinner, `Commit${s} pushed`, this.logGroupId);
-      clearTimeout(timer);
-      return result;
-    }
-    catch (e) {
-      clearInterval(spinner.timer);
-      throw e;
-    }
-  }
+  //   try {
+  //     // Push master
+  //     const result = await remote.push([`refs/heads/${branch}:refs/heads/${branch}`], options);
+  //     this.logger.spinnerLogStop(spinner, `Commit${s} pushed`, this.logGroupId);
+  //     clearTimeout(timer);
+  //     return result;
+  //   }
+  //   catch (e) {
+  //     clearInterval(spinner.timer);
+  //     throw e;
+  //   }
+  // }
 
 }

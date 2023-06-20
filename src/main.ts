@@ -56,11 +56,11 @@ const generator = <ICommandArgs extends CommandArgs>(ArgsParser, Generator, useG
 
     if (useGit) {
       // Clone or open repo
-      await Promise.all([
-        gitClient.getCodeRepository(),
-        gitClient.getWikiRepository(),
-        gitClient.getDocsRepository(),
-      ]);
+      // await Promise.all([
+      //   gitClient.getCodeRepository(),
+      //   gitClient.getWikiRepository(),
+      //   gitClient.getDocsRepository(),
+      // ]);
     }
 
     try {

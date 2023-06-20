@@ -76,7 +76,8 @@ export class PreviewGenerator {
     }
 
     try {
-      await this.commitAndPushToWiki(results);
+      // await this.commitAndPushToWiki(results);
+      this.logger.log(this.gitClient.toString())
 
       this.logger.log('Finished');
     }
@@ -87,18 +88,18 @@ export class PreviewGenerator {
     }
   }
 
-  private async commitAndPushToWiki(results: any[]) {
-    let hasCommit: boolean;
-    if (results && results.length) {
-      for (const result of results) {
-        hasCommit = await this.gitClient.tryCommitToWikiRepo(result.filename, result.content) || hasCommit;
-      }
-    }
+  // private async commitAndPushToWiki(results: any[]) {
+  //   let hasCommit: boolean;
+  //   if (results && results.length) {
+  //     for (const result of results) {
+  //       hasCommit = await this.gitClient.tryCommitToWikiRepo(result.filename, result.content) || hasCommit;
+  //     }
+  //   }
 
-    if (hasCommit) {
-      await this.gitClient.tryPushToWikiRepo(results.length);
-    }
-  }
+  //   if (hasCommit) {
+  //     await this.gitClient.tryPushToWikiRepo(results.length);
+  //   }
+  // }
 
 
 }
